@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Brave API Search</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 15px 0; padding: 10px; border-left: 3px solid #ff6b35; }
+        .title { font-size: 18px; color: #1a73e8; text-decoration: none; }
+        .url { color: #006621; font-size: 14px; }
+        .description { color: #545454; margin-top: 5px; }
+        .loading { text-align: center; padding: 50px; }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">Searching...</div>
+    <div id="results"></div>
+
+    <script>
+        async function search() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('q');
+            
+            if (!query) {
+                document.getElementById('loading').innerHTML = 'No search query provided';
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}&country=jp&search_lang=jp&extra_snippets=true`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'x-subscription-token': 'BSAXuVtAI1q76DiO6LzR57TOI2v2lYd'
+                    }
+                });
+
+                const data = await response.json();
+                displayResults(data, query);
+            } catch (error) {
+                document.getElementById('loading').innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function displayResults(data, query) {
+            const loading = document.getElementById('loading');
+            const resultsDiv = document.getElementById('results');
+            
+            loading.style.display = 'none';
+            
+            if (!data.web || !data.web.results || data.web.results.length === 0) {
+                resultsDiv.innerHTML = `<p>No results found for "${query}"</p>`;
+                return;
+            }
+
+            let html = `<h2>Search results for: ${query}</h2>`;
+            
+            data.web.results.forEach(result => {
+                html += `
+                    <div class="result">
+                        <a href="${result.url}" class="title" target="_blank">${result.title}</a>
+                        <div class="url">${result.url}</div>
+                        <div class="description">${result.description || ''}</div>
+                    </div>
+                `;
+            });
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        // Start search when page loads
+        search();
+    </script>
+</body>
+</html>
