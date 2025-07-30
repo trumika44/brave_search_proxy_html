@@ -1,0 +1,10 @@
+{
+    "manifest_version": 3,
+    "name": "Brave API Search",
+    "version": "1.0",
+    "description": "Add Brave Search API to Firefox",
+    "permissions": ["activeTab"],
+    "chrome_url_overrides": {
+        "newtab": "search.html"
+    }
+}
